@@ -22,10 +22,19 @@ class InverterUpdate(BaseModel):
     module_build_id: Optional[int] = None
 
 
+class LiveStatusResponse(BaseModel):
+    vendor: str
+    device_id: str
+    power_output_kw: float
+    daily_yield_kwh: float
+    status: str
+
+
 class InverterResponse(InverterBase):
     id: int
     project_id: int
     module_build_id: Optional[int] = None
+    live_data: Optional[LiveStatusResponse] = None
 
     class Config:
         from_attributes = True
