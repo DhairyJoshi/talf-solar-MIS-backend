@@ -1,6 +1,7 @@
 import os
 from celery import Celery
 from celery.schedules import crontab
+from app import models
 
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 
