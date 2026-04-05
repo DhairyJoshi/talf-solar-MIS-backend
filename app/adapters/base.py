@@ -9,3 +9,7 @@ class BaseInverterAdapter(ABC):
     @abstractmethod
     async def get_monthly_yield(self, device_id: str, month: str, credentials: dict) -> Dict[str, Any]:
         pass
+
+    @abstractmethod
+    async def get_day_curve(self, device_id: str, date: str, credentials: dict) -> Dict[str, Any]:
+        pass

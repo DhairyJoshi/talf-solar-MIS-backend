@@ -17,8 +17,16 @@ router = APIRouter()
 
 
 async def _get_project_with_inverters(project_id: int, db: AsyncSession) -> Project:
-    """Helper to eagerly load project with its inverters."""
-    query = select(Project).where(Project.id == project_id).options(selectinload(Project.inverters))
+    """Helper to eagerly load project with its inverters, monthly data, and kpis."""
+    query = (
+        select(Project)
+        .where(Project.id == project_id)
+        .options(
+            selectinload(Project.inverters),
+            selectinload(Project.monthly_data),
+            selectinload(Project.monthly_kpis)
+        )
+    )
     result = await db.execute(query)
     project = result.scalar_one_or_none()
     if not project:
@@ -43,7 +51,11 @@ async def list_projects(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    query = select(Project).options(selectinload(Project.inverters))
+    query = select(Project).options(
+        selectinload(Project.inverters),
+        selectinload(Project.monthly_data),
+        selectinload(Project.monthly_kpis)
+    )
     result = await db.execute(query)
     return result.scalars().all()
 

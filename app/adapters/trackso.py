@@ -57,3 +57,27 @@ class TrackSOAdapter(BaseInverterAdapter):
                 }
         except (httpx.HTTPStatusError, httpx.RequestError) as e:
             return {"vendor": "TrackSO", "device_id": device_id, "month": month, "yield_kwh": 0.0, "error": str(e)}
+
+    async def get_day_curve(self, device_id: str, date: str, credentials: dict) -> Dict[str, Any]:
+        """date format: YYYY-MM-DD"""
+        api_key = credentials.get("api_key", "")
+
+        try:
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                # TrackSO might use an 'hourly' or 'timeline' endpoint for a single day
+                resp = await client.get(
+                    f"{TRACKSO_API_HOST}/devices/{device_id}/timeline",
+                    params={"date": date},
+                    headers={"Authorization": f"Token {api_key}"},
+                )
+                resp.raise_for_status()
+                data = resp.json()
+                curve = [{"timestamp": r.get("time"), "value": r.get("power_kw", 0)} for r in data.get("points", [])]
+                return {
+                    "vendor": "TrackSO",
+                    "device_id": device_id,
+                    "date": date,
+                    "data_points": curve
+                }
+        except (httpx.HTTPStatusError, httpx.RequestError) as e:
+            return {"vendor": "TrackSO", "device_id": device_id, "date": date, "data_points": [], "error": str(e)}

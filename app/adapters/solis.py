@@ -85,3 +85,28 @@ class SolisAdapter(BaseInverterAdapter):
                 }
         except (httpx.HTTPStatusError, httpx.RequestError) as e:
             return {"vendor": "Solis", "device_id": device_id, "month": month, "yield_kwh": 0.0, "error": str(e)}
+
+    async def get_day_curve(self, device_id: str, date: str, credentials: dict) -> Dict[str, Any]:
+        """date format: YYYY-MM-DD"""
+        api_key = credentials.get("api_key", "")
+        api_secret = credentials.get("api_secret", "")
+        path = "/v1/api/inverterDay"
+        body = json.dumps({"sn": device_id, "time": date})
+
+        try:
+            headers = _build_solis_auth_header("POST", path, api_key, api_secret, body)
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                resp = await client.post(f"{SOLIS_API_HOST}{path}", content=body, headers=headers)
+                resp.raise_for_status()
+                data = resp.json()
+                # Solis day curve usually returns power points throughout the day
+                records = data.get("data", [])
+                curve = [{"timestamp": r.get("timeStr"), "value": r.get("pac", 0)} for r in records]
+                return {
+                    "vendor": "Solis",
+                    "device_id": device_id,
+                    "date": date,
+                    "data_points": curve
+                }
+        except (httpx.HTTPStatusError, httpx.RequestError) as e:
+            return {"vendor": "Solis", "device_id": device_id, "date": date, "data_points": [], "error": str(e)}

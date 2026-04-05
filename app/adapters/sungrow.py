@@ -82,3 +82,30 @@ class SungrowAdapter(BaseInverterAdapter):
                 }
         except (httpx.HTTPStatusError, httpx.RequestError) as e:
             return {"vendor": "Sungrow", "device_id": device_id, "month": month, "yield_kwh": 0.0, "error": str(e)}
+
+    async def get_day_curve(self, device_id: str, date: str, credentials: dict) -> Dict[str, Any]:
+        """date format: YYYY-MM-DD"""
+        api_key = credentials.get("api_key", "")
+        api_secret = credentials.get("api_secret", "")
+        formatted_date = date.replace("-", "")
+
+        try:
+            async with httpx.AsyncClient() as client:
+                token = await _get_sungrow_token(api_key, api_secret, client)
+                resp = await client.post(
+                    f"{ISOLAR_API_HOST}/openapi/queryDeviceHistoryDataList",
+                    json={"device_sn": device_id, "start_time": f"{formatted_date}0000", "end_time": f"{formatted_date}2359", "data_type": "hour"},
+                    headers={"token": token, "x-access-key": api_key},
+                    timeout=10.0
+                )
+                resp.raise_for_status()
+                data = resp.json().get("result_data", {})
+                curve = [{"timestamp": r.get("time"), "value": r.get("p_ac", 0) / 1000} for r in data.get("list", [])]
+                return {
+                    "vendor": "Sungrow",
+                    "device_id": device_id,
+                    "date": date,
+                    "data_points": curve
+                }
+        except (httpx.HTTPStatusError, httpx.RequestError) as e:
+            return {"vendor": "Sungrow", "device_id": device_id, "date": date, "data_points": [], "error": str(e)}

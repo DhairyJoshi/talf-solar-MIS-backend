@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime
+from app.schemas.monthly_data import MonthlyDataResponse
+from app.schemas.monthly_kpi import MonthlyKPIResponse
 
 
 class InverterBase(BaseModel):
@@ -49,6 +51,8 @@ class ProjectResponse(ProjectBase):
     id: int
     created_at: datetime
     inverters: List[InverterResponse] = []
+    monthly_data: List[MonthlyDataResponse] = []
+    monthly_kpis: List[MonthlyKPIResponse] = []
 
     class Config:
         from_attributes = True
