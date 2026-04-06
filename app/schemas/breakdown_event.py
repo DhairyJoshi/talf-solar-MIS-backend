@@ -14,6 +14,14 @@ class BreakdownEventCreate(BreakdownEventBase):
     pass
 
 
+class BreakdownEventUpdate(BaseModel):
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    description: Optional[str] = None
+    loss_kwh: Optional[float] = None
+
+
+
 class BreakdownEventResponse(BreakdownEventBase):
     id: int
     inverter_id: int

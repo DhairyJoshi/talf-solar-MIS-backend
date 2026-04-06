@@ -7,7 +7,8 @@ from app.api.dependencies import get_current_user, require_admin, require_operat
 from app.models.breakdown_event import BreakdownEvent
 from app.models.inverter import Inverter
 from app.models.user import User
-from app.schemas.breakdown_event import BreakdownEventCreate, BreakdownEventResponse
+from app.schemas.breakdown_event import BreakdownEventCreate, BreakdownEventResponse, BreakdownEventUpdate
+
 
 router = APIRouter()
 
@@ -46,6 +47,26 @@ async def list_breakdown_events(
         .order_by(BreakdownEvent.start_date.desc())
     )
     return result.scalars().all()
+
+
+@router.put("/breakdown-events/{event_id}", response_model=BreakdownEventResponse)
+async def update_breakdown_event(
+    event_id: int,
+    event_update: BreakdownEventUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(require_operations)
+):
+    event = await db.get(BreakdownEvent, event_id)
+    if not event:
+        raise HTTPException(status_code=404, detail="Breakdown event not found")
+    
+    update_data = event_update.model_dump(exclude_unset=True)
+    for field, value in update_data.items():
+        setattr(event, field, value)
+        
+    await db.commit()
+    await db.refresh(event)
+    return event
 
 
 @router.delete("/breakdown-events/{event_id}", status_code=204)
