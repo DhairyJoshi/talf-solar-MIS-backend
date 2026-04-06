@@ -50,7 +50,7 @@ graph TD
 
 ---
 
-## 🛠️ Component Breakdown
+## Component Breakdown
 
 ### 1. Frontend (React/Tailwind)
 - **Roles**: Dashboard visualization, data entry forms, and user management.

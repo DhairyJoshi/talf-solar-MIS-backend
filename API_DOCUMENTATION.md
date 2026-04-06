@@ -145,12 +145,12 @@ View all logs for an inverter.
 
 | Feature | ADMIN | OPERATIONS | VIEWER |
 |---|---|---|---|
-| User & System Mgmt | ✅ Full | ❌ No | ❌ No |
-| Project/Inverter Config | ✅ Full | ❌ No | ❌ No |
-| Manual Data Ingestion | ✅ Yes | ✅ Yes | ❌ No |
-| KPI Recalculation | ✅ Yes | ✅ Yes | ❌ No |
-| Real-time Monitoring | ✅ Yes | ✅ Yes | ✅ Yes |
-| Viewing Dashboards | ✅ Yes | ✅ Yes | ✅ Yes |
+| User & System Mgmt | Yes | No | No |
+| Project/Inverter Config | Yes | No | No |
+| Manual Data Ingestion | Yes | Yes | No |
+| KPI Recalculation | Yes | Yes | No |
+| Real-time Monitoring | Yes | Yes | Yes |
+| Viewing Dashboards | Yes | Yes | Yes |
 
 ---
 
